@@ -1,4 +1,4 @@
-# v10.5 5/11/2026
+# v10.6 6/9/2026
 # Starting to test reset button interrupt functionality.
 
 # Adding ALERT pin to RP2040-Zero using GP7.
@@ -43,14 +43,8 @@ import ustruct
 from ssd1309 import Display
 from xglcd_font import XglcdFont
 
-# I'm having issues getting this RP2040-Zero to run main.py.
-# Don't know what is going on just yet.
-
-# Tried this, but didn't do anything.
-# Wait 1 seconds for the USB connection to be established before starting the main loop.
-time.sleep(1)
-
-
+# Wait 500 milisenconds for the USB connection to be established before starting the main loop.
+time.sleep_ms(500)
 
 # INA260 Power Monitor Class
 class INA260:
@@ -77,8 +71,8 @@ class INA260:
 
         # Examples of Alert Limit Register values:
         # The INA260 can exceed 15 A continouse handling limit for brief periods of time
-        # Figure 22 of the datasheet 100A for 20ms and 50 A's for up to 1 second
-        # ., but the alert limit register is only 16 bits, so the maximum value that can be set is 65535 decimal or FFFFh hex.
+        # Figure 22 of the datasheet 100A for 20ms and 50 A's for up to 1 second.
+        # Alert limit register is only 16 bits, so the maximum value is just under 82 A.
         # 2.5 A (2.5 A / 1.25 mA) = 2000 decimal = 0x07D0 hex.
         # 14.5 A (14.5 A / 1.25 mA = 11600 decimal = 0x2D50 hex.
         # 16.0 A (16 A / 1.25 mA) = 12800 decimal = 0x3200 hex.
@@ -195,11 +189,15 @@ def main():
     print(f"Initial Mask/Enable Value: {mask_enable_value:04X}h")
     print(f"This should now be 8001h or 8009h after reading the register: {ina260.get_mask_enable():04X}h")
     print(f"Alert Limit Value: {ina260.get_alert_limit():04X}h")
+    ALERT_LIMIT_AMPS = ina260.get_alert_limit() * 0.00125
+    print(f"Alert Limit currently set to: {ALERT_LIMIT_AMPS:.2f} A")
 
 
     try:
         while True:
-            # Testing to see changing from if OCL_tripped: to while OCL_tripped: to continuously display the alert message until the user presses the reset button to clear the alert and reset the Alert pin back to high.
+            # Testing to see changing from if OCL_tripped: to while OCL_tripped: to continuously
+            # display the alert message until the user presses the reset button to clear the alert
+            # and reset the Alert pin back to high.
             # if OCL_tripped:
             while OCL_tripped:
                 print("OCL Tripped!")
@@ -216,7 +214,6 @@ def main():
                 oled._display.present()
                 while OCL_tripped:
                     time.sleep(2) # Sleep for 2 seconds to prevent flooding the console with messages while the alert is active.
-                # break
         
             else:
                 # Read voltage, current, and power from INA260 sensor
@@ -228,16 +225,6 @@ def main():
                 time.sleep_ms(50) # Update 20 times per second
                 # Send readings to stdout debugging and via USB to Windows application.
                 sys.stdout.write("V: {:.3f}, I: {:.3f}, P: {:.3f}\n".format(voltage, current, power))
-            # print("Entering main data acquisition loop...")
-            # Call Mask/Enable register and Alert Limit register read methods for debugging purposes.
-            # mask_enable_value = ina260.get_mask_enable()
-            # alert_limit_value = ina260.get_alert_limit()
-            # print("Mask/Enable Value: {:04X}".format(mask_enable_value))
-            # print("Alert Limit Value: {:04X}".format(alert_limit_value))
-            # Output value of configuration register for debugging purposes.
-            # Read the Configuration Register value for debugging purposes.
-            # config_value = ina260.get_config()
-            # print("Configuration Value: {:04X}".format(config_value))
 
     except KeyboardInterrupt:
             print("Program stopped by user.")
