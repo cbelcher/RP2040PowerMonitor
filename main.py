@@ -1,5 +1,5 @@
-# v10.7 6/11/2026
-# Removing any calls to get power readings.
+# v10.8 6/11/2026
+# Just not sending Power readings to PC, still displaying them on the OLED.
 
 
 # Found an interesting issue with the RP2040-Zero.  These are the no-name clones.
@@ -117,16 +117,10 @@ class SSD1309:
         self.unispace = XglcdFont('fonts/Unispace12x24.c', 12, 24)
         self.Bally = XglcdFont('fonts/Bally7x9.c', 7, 9)
     
-    # Removed power readings 6/11/2026.
-    # def update_display(self, voltage, current, power):
-        # self._display.draw_text(x=0, y=0, text="V: {:.3f}".format(voltage), font=self.unispace)
-        # self._display.draw_text(x=0, y=20, text="I: {:.3f}".format(current), font=self.unispace)
-        # self._display.draw_text(x=0, y=40, text="P: {:.3f}".format(power), font=self.unispace)
-        # self._display.present()
-
-    def update_display(self, voltage, current):
+    def update_display(self, voltage, current, power):
         self._display.draw_text(x=0, y=0, text="V: {:.3f}".format(voltage), font=self.unispace)
         self._display.draw_text(x=0, y=20, text="I: {:.3f}".format(current), font=self.unispace)
+        self._display.draw_text(x=0, y=40, text="P: {:.3f}".format(power), font=self.unispace)
         self._display.present()
 
 
@@ -198,8 +192,7 @@ def main():
 
     try:
         while True:
-            # Testing to see changing from if OCL_tripped: to while OCL_tripped: to continuously display the alert message until the user presses the reset button to clear the alert and reset the Alert pin back to high.
-            # if OCL_tripped:
+            # This tested fine.
             while OCL_tripped:
                 print("OCL Tripped!")
                 print(f"Alert Pin State: {alert_pin.value()}")
@@ -221,13 +214,12 @@ def main():
                 # Read voltage, current, and power from INA260 sensor
                 voltage = ina260.get_voltage()
                 current = ina260.get_current()
-                # power = ina260.get_power()
+                power = ina260.get_power()
                 # Update OLED display with the latest readings
-                # 6/11/2026 - Removed Power Readings.
-                #oled.update_display(voltage, current, power)
-                oled.update_display(voltage, current)
+                oled.update_display(voltage, current, power)
                 time.sleep_ms(50) # Update 20 times per second
                 # Send readings to stdout debugging and via USB to Windows application.
+                # Did remove power readings from being sent over USB to the Windows app. 6/11/2026
                 # sys.stdout.write("V: {:.3f}, I: {:.3f}, P: {:.3f}\n".format(voltage, current, power))
                 sys.stdout.write("V: {:.3f}, I: {:.3f}\n".format(voltage, current))
 
