@@ -1,4 +1,4 @@
-# v10.6 6/11/2026
+# v10.7 6/11/2026
 # Removing any calls to get power readings.
 
 
@@ -229,7 +229,7 @@ def main():
                 time.sleep_ms(50) # Update 20 times per second
                 # Send readings to stdout debugging and via USB to Windows application.
                 # sys.stdout.write("V: {:.3f}, I: {:.3f}, P: {:.3f}\n".format(voltage, current, power))
-                sys.stdout.write("V: {:.3f}, I: {:.3f}}\n".format(voltage, current))
+                sys.stdout.write("V: {:.3f}, I: {:.3f}\n".format(voltage, current))
 
     except KeyboardInterrupt:
             print("Program stopped by user.")
