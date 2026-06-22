@@ -1,7 +1,7 @@
 # Pico Power Monitor RP2040-Zero Micro Python Files
 
 
-This the repo contains the files needed to run the hardware side of thing, for the Pico Power Monitor.
+This the repo contains the files needed to run the hardware side of things, for the Pico Power Monitor.
 
 ## Project is broken up into 4 sub-projects.
 
