@@ -1,7 +1,4 @@
-# v10.10 6/22/2026
-# Just not sending Power readings to PC, still displaying them on the OLED.
-# Pushing it to sample 100 times per second instead of 20 times per second. 6/11/2026
-
+# v11.00 6/22/2026
 
 # Found an interesting issue with the RP2040-Zero.  These are the no-name clones.
 # Looks like the batch of 6 I purchased have different USB PIDs.
@@ -33,7 +30,7 @@
 # GND               Pin 20                  GND                         Ground
 
 
-import struct
+#import struct
 import sys
 
 from machine import I2C, Pin
@@ -71,8 +68,8 @@ class INA260:
 
         # Examples of Alert Limit Register values:
         # The INA260 can exceed 15 A continouse handling limit for brief periods of time
-        # Figure 22 of the datasheet 100A for 20ms and 50 A's for up to 1 second
-        # ., but the alert limit register is only 16 bits, so the maximum value that can be set is 65535 decimal or FFFFh hex.
+        # Figure 22 of the datasheet, 100A for 20ms and 50 A's for up to 1 second
+        # The alert limit register is only 16 bits, so the maximum value that can be set is 65535 decimal or FFFFh hex.
         # 2.5 A (2.5 A / 1.25 mA) = 2000 decimal = 0x07D0 hex.
         # 14.5 A (14.5 A / 1.25 mA = 11600 decimal = 0x2D50 hex.
         # 16.0 A (16 A / 1.25 mA) = 12800 decimal = 0x3200 hex.
@@ -136,7 +133,7 @@ oled = SSD1309(i2c)
 
 # GP 7 is connected to the INA260's ALERT pin
 # Set Pin 7 as an input with a pull-up resistor (active low)
-# The INA260's ALERT pin is an open-drain active low.
+# The INA260's ALERT pin is open-drain active low.
 # The INA260 will pull this pin to GND when the current exceeds the alert limit.
 # GP 7 will be used to trigger an interrupt to alert the user when the current exceeds the limit.
 alert_pin = Pin(7, Pin.IN, Pin.PULL_UP)
@@ -163,44 +160,23 @@ reset_pin = Pin(6, Pin.IN, Pin.PULL_UP)
 
 def reset_handler(pin):
     # This runs the instant the ALE pin goes LOW
-    print("Interrupt triggered on pin:", pin)
-    print("INA ALERT Reset button pressed!")
     # Read the Mask/Enable register to clear the Alert flag and reset the Alert pin to high.
-    print(f"Mask/Enable Value before reading: {ina260.get_mask_enable():04X}h")
-    print("In theory this should clear the Alert flag and set the Alert pin back to high.")
-    print(f"Mask/Enable Value after printing: {ina260.get_mask_enable():04X}h")
-    print("Reading the Mask/Enable register to clear the Alert flag...")
     ina260._read_register(ina260._REG_MASK_ENABLE)
-    print(f"Mask/Enable Value after reading: {ina260.get_mask_enable():04X}h")
     # Update global variable or flag
     global OCL_tripped
     OCL_tripped = False
-    print("Clear display")
     oled._display.clear()
 
 # Attach the interrupt
 reset_pin.irq(trigger=Pin.IRQ_FALLING, handler=reset_handler)
 
 def main():
-    print("Starting main loop. Waiting for alerts...")
     # Read Mask/Enable register to clear the Alert flag and reset the Alert pin to high before starting the main loop.
     mask_enable_value = ina260.get_mask_enable()
-    #print("Initial Mask/Enable Value: {:04X}h".format(mask_enable_value))
-    print(f"Initial Mask/Enable Value: {mask_enable_value:04X}h")
-    print(f"This should now be 8001h or 8009h after reading the register: {ina260.get_mask_enable():04X}h")
-    print(f"Alert Limit Value: {ina260.get_alert_limit():04X}h")
-
 
     try:
         while True:
-            # This tested fine.
             while OCL_tripped:
-                print("OCL Tripped!")
-                print(f"Alert Pin State: {alert_pin.value()}")
-                print(f"Alert Limit Value: {ina260.get_alert_limit():04X}h")
-                print(f"OCL Mask/Enable Value: {ina260.get_mask_enable():04X}h")
-                # current = ina260.get_current()
-                print(f"V: {voltage:.3f}, I: {current:.3f}")
                 oled._display.clear()
                 oled._display.draw_text(x=1, y=10, text="ALERT: Overcurrent", font=oled.Bally)
                 oled._display.draw_text(x=30, y=20, text="Protection!", font=oled.Bally)
@@ -209,8 +185,6 @@ def main():
                 oled._display.present()
                 while OCL_tripped:
                     time.sleep(2) # Sleep for 2 seconds to prevent flooding the console with messages while the alert is active.
-                # break
-        
             else:
                 # Read voltage, current, and power from INA260 sensor
                 voltage = ina260.get_voltage()
@@ -220,7 +194,7 @@ def main():
                 oled.update_display(voltage, current, power)
                 time.sleep_ms(10) # Update 100 times per second
                 # Send readings to stdout debugging and via USB to Windows application.
-                # Did remove power readings from being sent over USB to the Windows app. 6/11/2026
+                # Removed power readings from being sent over USB to the Windows app. 6/11/2026
                 # sys.stdout.write("V: {:.3f}, I: {:.3f}, P: {:.3f}\n".format(voltage, current, power))
                 sys.stdout.write("V: {:.3f}, I: {:.3f}\n".format(voltage, current))
 
