@@ -1,5 +1,6 @@
-# v10.8 6/11/2026
+# v10.10 6/22/2026
 # Just not sending Power readings to PC, still displaying them on the OLED.
+# Pushing it to sample 100 times per second instead of 20 times per second. 6/11/2026
 
 
 # Found an interesting issue with the RP2040-Zero.  These are the no-name clones.
@@ -203,8 +204,8 @@ def main():
                 oled._display.clear()
                 oled._display.draw_text(x=1, y=10, text="ALERT: Overcurrent", font=oled.Bally)
                 oled._display.draw_text(x=30, y=20, text="Protection!", font=oled.Bally)
-                oled._display.draw_text(x=30, y=35, text="Power Cycle", font=oled.Bally)
-                oled._display.draw_text(x=40, y=45, text="to Reset", font=oled.Bally)
+                oled._display.draw_text(x=24, y=35, text="Reset Button", font=oled.Bally)
+                oled._display.draw_text(x=31, y=45, text="to Restart", font=oled.Bally)
                 oled._display.present()
                 while OCL_tripped:
                     time.sleep(2) # Sleep for 2 seconds to prevent flooding the console with messages while the alert is active.
@@ -217,7 +218,7 @@ def main():
                 power = ina260.get_power()
                 # Update OLED display with the latest readings
                 oled.update_display(voltage, current, power)
-                time.sleep_ms(50) # Update 20 times per second
+                time.sleep_ms(10) # Update 100 times per second
                 # Send readings to stdout debugging and via USB to Windows application.
                 # Did remove power readings from being sent over USB to the Windows app. 6/11/2026
                 # sys.stdout.write("V: {:.3f}, I: {:.3f}, P: {:.3f}\n".format(voltage, current, power))
