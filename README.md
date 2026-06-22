@@ -17,7 +17,7 @@ This the repo contains the files needed to run the hardware side of things, for 
   
 	- Repo: /PicoPowerMonitor (Direct link [here](https://github.com/cbelcher/PicoPowerMonitor))
  
-  - FreeCAD 3D Printed Case Design. (Project should be uploaded as soon as I get some time.)
+  - FreeCAD 3D Printed Case Design. (Direct link [here](https://github.com/cbelcher/PicoPowerMonitor_FreeCAD))
 
 ## Key Features
 
