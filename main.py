@@ -1,4 +1,4 @@
-# v11.00 6/22/2026
+# v11.10 6/22/2026
 
 # Found an interesting issue with the RP2040-Zero.  These are the no-name clones.
 # Looks like the batch of 6 I purchased have different USB PIDs.
@@ -30,9 +30,7 @@
 # GND               Pin 20                  GND                         Ground
 
 
-#import struct
 import sys
-
 from machine import I2C, Pin
 import time
 import ustruct
