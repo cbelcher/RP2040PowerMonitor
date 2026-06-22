@@ -5,7 +5,7 @@ This the repo contains the files needed to run the hardware side of things, for 
 
 ## Project is broken up into 4 sub-projects.
 
-  - MicroPhython code to drive the hardware side of things - This Repo.
+  - MicroPhython code to drive the hardware. - This Repo.
       This is the project that runs on the RP2040-Zero.  Current MicroPython firmware 1.28.
     
   - KiCAD Custom PCB Design
