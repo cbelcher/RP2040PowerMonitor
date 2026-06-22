@@ -21,7 +21,7 @@ This the repo contains the files needed to run the hardware side of things, for 
 
 ## Key Features
 
-- Instantiates I2C communications to OLED display and the TI's INA260 Power Montior IC.
+- Instantiates I2C communications to OLED display and the TI INA260 Power Montior IC.
 - Sets up the TI INA260's OCL (Over Current Limit) register.  Default 16 A.  Configurable.
 - Reads the INA260's registers 100 times / second for Curent, Voltage and Power values.
 - Updates OLED Display with INA260 readings.
